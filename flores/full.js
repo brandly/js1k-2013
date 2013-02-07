@@ -16,6 +16,8 @@ s = cloud size
 o = array of objects
     x: x coordinate
     y: y coordinate
+    c: color
+    f: flower character to draw
     t: type
        0: raindrop
        1: flower
@@ -46,7 +48,7 @@ onmousemove = function(E) {
 // Make the array of objects, which is of a fixed size
 // It starts out with nulls everywhere
 o = [];
-for (I = 1200; I; I --)
+for (I = 200; I --;)
 	o.push(null);
 
 // The repeated frame function.
@@ -57,18 +59,21 @@ for (I = 1200; I; I --)
 	c.height = H = w.innerHeight;
 
 	// Drop a raindrop in the first null spot
+	// c is color, which is shorthand for the following:
+	// Math.floor(Math.random() * parseInt('FFFFFF', 16)).toString(16);
 	var index  = o.indexOf(null);
 	o[index] = {
 		x: x + (m.random() * s) - (s / 2),
 		y: y - (s / 3),
-		a: 0,
+		c: '#' + ((m.random() * (1 << 24))|0).toString(16),
+		f: ["⚘", "❀", "❁"][(m.random() * 3)|0],
 		t: 0
 	};
 
-	// Objects have a 20-second lifespan
+	// Objects have a lifespan
 	setTimeout(function() {
 		o[index] = null;
-	}, 20000);
+	}, 3000);
 
 	with (a) {
 
@@ -77,7 +82,6 @@ for (I = 1200; I; I --)
 		fillRect(0,0,W,H);
 
 		// Deal with the objects
-		fillStyle = "#009";
 		o.forEach(function(obj) {
 
 			// Bail if we've an empty object
@@ -89,6 +93,7 @@ for (I = 1200; I; I --)
 			else if (!obj.t) {
 
 				// Draw them
+				fillStyle = "#009";
 				beginPath();
 				arc(obj.x, obj.y, 5, 0, 7);  // I use 7 because 7 > (2 * pi)
 				fill();
@@ -105,13 +110,19 @@ for (I = 1200; I; I --)
 
 			// Flower 1
 			else if (obj.t == 1) {
+
+				// Draw a flower
+				fillStyle = obj.c;
+				font = "50px sans-serif";
+				fillText(obj.f, obj.x, obj.y);
+
 			}
 
 		});
 
 		// Draw the cloud
 		fillStyle = "#fff";
-		font = (5 * m.sin(Date.now() / 500) + s) + "px serif";
+		font = (5 * m.sin(Date.now() / 500) + s) + "px sans-serif";
 		textAlign = "center";
 		fillText("☁", x, y);
 		strokeStyle = "#000";
@@ -121,6 +132,6 @@ for (I = 1200; I; I --)
 	}
 
 	// Repeat!
-	w.requestAnimationFrame(F);
+	setTimeout(F, 15);
 
 })();
