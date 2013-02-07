@@ -13,12 +13,17 @@ x = cloud X
 y = cloud Y
 s = cloud size
 
+e = umbrella X
+r = umbrella Y
+
+f = flower count
 o = array of objects
     x: x coordinate
     y: y coordinate
     c: color
     f: flower character to draw
     s: flower size
+    i: index in the array
     t: type
        0: raindrop
        1: flower
@@ -40,7 +45,7 @@ m = Math;
 d.head.appendChild(C);
 
 // Move the cloud you control
-x = y = s = 100;
+x = y = s = e = r = 100;
 onmousemove = function(E) {
 	x = E.clientX;
 	y = E.clientY;
@@ -60,23 +65,31 @@ for (I = 200; I --;)
 	c.height = H = w.innerHeight;
 	Z = H - 50;
 
-	// Drop a raindrop in the first null spot
-	// c is color, which is shorthand for the following:
-	// Math.floor(Math.random() * parseInt('FFFFFF', 16)).toString(16);
-	var index  = o.indexOf(null);
-	o[index] = {
-		x: x + (m.random() * s) - (s / 2),
-		y: y - (s / 3),
-		c: '#' + ((m.random() * (1 << 24))|0).toString(16),
-		f: ["⚘", "❀", "❁"][(m.random() * 3)|0],
-		s: (m.random() * 100 + 20)|0,
-		t: 0
-	};
+	// Restart flower count
+	f = 0;
 
-	// Objects have a lifespan
-	setTimeout(function() {
-		o[index] = null;
-	}, 3000);
+	var INDEX  = o.indexOf(null);
+	if (~INDEX) {
+
+		// Drop a raindrop in the first null spot
+		// c is color, which is shorthand for the following:
+		// Math.floor(Math.random() * parseInt('FFFFFF', 16)).toString(16);
+		o[INDEX] = {
+			x: x + (m.random() * s) - (s / 2),
+			y: y - (s / 3),
+			c: '#' + ((m.random() * (1 << 24))|0).toString(16),
+			f: ["⚘", "❀", "❁"][(m.random() * 3)|0],
+			s: (m.random() * 100 + 20)|0,
+			t: 0,
+			i: INDEX
+		};
+
+		// Objects have a lifespan
+		setTimeout(function() {
+			o[INDEX] = null;
+		}, 3000);
+
+	}
 
 	with (a) {
 
@@ -115,9 +128,13 @@ for (I = 200; I --;)
 				// Fall!
 				obj.y += 10;
 
-				// If I've hit the bottom, become a beautiful flower
+				// If I've hit the bottom, become a beautiful flower or die
 				if (obj.y > Z) {
-					obj.t = 1;
+					if (m.random() > .25) {
+						obj.t = 1;
+					} else {
+						o[obj.i] = null;
+					}
 				}
 
 			}
@@ -130,9 +147,21 @@ for (I = 200; I --;)
 				font = obj.s + "px serif";
 				fillText(obj.f, obj.x, obj.y);
 
+				// Increase flower count
+				f ++;
+
 			}
 
 		});
+
+		// Draw the umbrella
+		fillStyle = "#fff";
+		font = (5 * m.sin(Date.now() / 500) + s) + "px sans-serif";
+		textAlign = "center";
+		fillText("☂", e, r);
+		strokeStyle = "#000";
+		lineWidth = s / 20;
+		strokeText("☂", e, r);
 
 		// Draw the cloud
 		fillStyle = "#fff";
