@@ -18,6 +18,7 @@ o = array of objects
     y: y coordinate
     c: color
     f: flower character to draw
+    s: flower size
     t: type
        0: raindrop
        1: flower
@@ -57,6 +58,7 @@ for (I = 200; I --;)
 	// How big is the canvas?
 	c.width = W = w.innerWidth;
 	c.height = H = w.innerHeight;
+	Z = H - 50;
 
 	// Drop a raindrop in the first null spot
 	// c is color, which is shorthand for the following:
@@ -67,6 +69,7 @@ for (I = 200; I --;)
 		y: y - (s / 3),
 		c: '#' + ((m.random() * (1 << 24))|0).toString(16),
 		f: ["⚘", "❀", "❁"][(m.random() * 3)|0],
+		s: (m.random() * 50 + 50)|0,
 		t: 0
 	};
 
@@ -79,7 +82,18 @@ for (I = 200; I --;)
 
 		// Canvas background
 		fillStyle = "#4be";
-		fillRect(0,0,W,H);
+		fillRect(0, 0, W, H);
+
+		// "Hill"
+		fillStyle = "#0a0";
+		fillRect(0, Z, W, H);
+		strokeStyle = "#060";
+		lineWidth = 5;
+		beginPath();
+		moveTo(0, Z);
+		lineTo(W, Z);
+		closePath();
+		stroke();
 
 		// Deal with the objects
 		o.forEach(function(obj) {
@@ -102,7 +116,7 @@ for (I = 200; I --;)
 				obj.y += 10;
 
 				// If I've hit the bottom, become a beautiful flower
-				if (obj.y > H) {
+				if (obj.y > Z) {
 					obj.t = 1;
 				}
 
@@ -113,7 +127,7 @@ for (I = 200; I --;)
 
 				// Draw a flower
 				fillStyle = obj.c;
-				font = "50px sans-serif";
+				font = obj.s + "px serif";
 				fillText(obj.f, obj.x, obj.y);
 
 			}
